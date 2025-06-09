@@ -3,7 +3,6 @@ package com.cinematichororuniverse.dmsplus.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cinematichororuniverse.dmsplus.data.model.Banner
-import com.cinematichororuniverse.dmsplus.data.model.ContentCategory
 import com.cinematichororuniverse.dmsplus.data.model.Creator
 import com.cinematichororuniverse.dmsplus.data.model.HorrorContent
 import com.cinematichororuniverse.dmsplus.data.repository.BannerRepository
@@ -16,6 +15,8 @@ import javax.inject.Inject
 data class HomeUiState(
     val isLoading: Boolean = true,
     val banners: List<Banner> = emptyList(),
+    val bannerError: String? = null,
+    val bannerLoading: Boolean = false,
     val featuredContent: List<HorrorContent> = emptyList(),
     val trendingContent: List<HorrorContent> = emptyList(),
     val exclusiveContent: List<HorrorContent> = emptyList(),
@@ -35,52 +36,41 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadHomeContent()
+        loadBanners()
     }
 
-    fun loadHomeContent() {
+    private fun loadHomeContent() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             
             try {
-                // Load all content in parallel
-                val bannersFlow = bannerRepository.getBanners()
-                val featuredFlow = repository.getFeaturedContent()
-                val trendingFlow = repository.getTrendingContent()
-                val exclusiveFlow = repository.getExclusiveContent()
-                val recentFlow = repository.getAllContent()
-                val creatorsFlow = repository.getCreators()
-
-                combine(
-                    bannersFlow,
-                    featuredFlow,
-                    trendingFlow,
-                    exclusiveFlow,
-                    recentFlow,
-                    creatorsFlow
-                ) { flows ->
-                    val banners = flows[0] as List<Banner>
-                    val featured = flows[1] as List<HorrorContent>
-                    val trending = flows[2] as List<HorrorContent>
-                    val exclusive = flows[3] as List<HorrorContent>
-                    val recent = flows[4] as List<HorrorContent>
-                    val creators = flows[5] as List<Creator>
-                    
-                    HomeUiState(
-                        isLoading = false,
-                        banners = banners,
-                        featuredContent = featured,
-                        trendingContent = trending,
-                        exclusiveContent = exclusive,
-                        recentContent = recent.sortedByDescending { it.releaseDate }.take(10),
-                        creators = creators
-                    )
-                }.catch { exception ->
+                // Load featured content
+                repository.getFeaturedContent().collect { featured ->
+                    _uiState.value = _uiState.value.copy(featuredContent = featured)
+                }
+                
+                // Load trending content
+                repository.getTrendingContent().collect { trending ->
+                    _uiState.value = _uiState.value.copy(trendingContent = trending)
+                }
+                
+                // Load exclusive content
+                repository.getExclusiveContent().collect { exclusive ->
+                    _uiState.value = _uiState.value.copy(exclusiveContent = exclusive)
+                }
+                
+                // Load recent content
+                repository.getAllContent().collect { all ->
+                    val recent = all.sortedByDescending { content -> content.releaseDate }.take(10)
+                    _uiState.value = _uiState.value.copy(recentContent = recent)
+                }
+                
+                // Load creators
+                repository.getCreators().collect { creators ->
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = exception.message ?: "Unknown error occurred"
+                        creators = creators,
+                        isLoading = false
                     )
-                }.collect { newState ->
-                    _uiState.value = newState
                 }
                 
             } catch (exception: Exception) {
@@ -91,118 +81,44 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+    
+    private fun loadBanners() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(bannerLoading = true, bannerError = null)
+            
+            try {
+                bannerRepository.getBanners().collect { banners ->
+                    _uiState.value = _uiState.value.copy(
+                        banners = banners,
+                        bannerLoading = false,
+                        bannerError = null
+                    )
+                }
+            } catch (exception: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    bannerLoading = false,
+                    bannerError = exception.message ?: "Failed to load banners"
+                )
+            }
+        }
+    }
 
     fun refreshContent() {
         loadHomeContent()
+        loadBanners()
     }
 
     fun retryLoading() {
         loadHomeContent()
     }
     
+    fun retryBanners() {
+        loadBanners()
+    }
+    
     fun onBannerClick(banner: Banner) {
         // Handle banner click - could navigate to video or external URL
-        // For now, we'll just log it
         println("Banner clicked: ${banner.title} - ${banner.targetUrl}")
         // TODO: Implement navigation based on banner.targetUrlType and banner.targetUrl
-    }
-}
-
-data class CategoryUiState(
-    val isLoading: Boolean = true,
-    val content: List<HorrorContent> = emptyList(),
-    val category: ContentCategory = ContentCategory.HORROR,
-    val errorMessage: String? = null
-)
-
-@HiltViewModel
-class CategoryViewModel @Inject constructor(
-    private val repository: HorrorContentRepository
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(CategoryUiState())
-    val uiState: StateFlow<CategoryUiState> = _uiState.asStateFlow()
-
-    fun loadContentByCategory(category: ContentCategory) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = true, 
-                category = category,
-                errorMessage = null
-            )
-            
-            try {
-                repository.getContentByCategory(category).collect { content ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        content = content
-                    )
-                }
-            } catch (exception: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = exception.message ?: "Failed to load content"
-                )
-            }
-        }
-    }
-
-    fun refreshContent() {
-        loadContentByCategory(_uiState.value.category)
-    }
-}
-
-data class SearchUiState(
-    val isLoading: Boolean = false,
-    val searchResults: List<HorrorContent> = emptyList(),
-    val query: String = "",
-    val hasSearched: Boolean = false,
-    val errorMessage: String? = null
-)
-
-@HiltViewModel
-class SearchViewModel @Inject constructor(
-    private val repository: HorrorContentRepository
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(SearchUiState())
-    val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
-
-    fun searchContent(query: String) {
-        if (query.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                searchResults = emptyList(),
-                query = query,
-                hasSearched = false
-            )
-            return
-        }
-
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                query = query,
-                hasSearched = true,
-                errorMessage = null
-            )
-            
-            try {
-                repository.searchContent(query).collect { results ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        searchResults = results
-                    )
-                }
-            } catch (exception: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = exception.message ?: "Search failed"
-                )
-            }
-        }
-    }
-
-    fun clearSearch() {
-        _uiState.value = SearchUiState()
     }
 }

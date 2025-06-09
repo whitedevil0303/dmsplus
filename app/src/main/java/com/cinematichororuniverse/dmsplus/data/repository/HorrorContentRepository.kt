@@ -122,17 +122,17 @@ class HorrorContentRepository @Inject constructor() {
         )
     )
 
-    suspend fun getFeaturedContent(): Flow<List<HorrorContent>> = flow {
+    fun getFeaturedContent(): Flow<List<HorrorContent>> = flow {
         delay(1000) // Simulate network delay
         emit(mockHorrorContent.take(3))
     }
 
-    suspend fun getContentByCategory(category: ContentCategory): Flow<List<HorrorContent>> = flow {
+    fun getContentByCategory(category: ContentCategory): Flow<List<HorrorContent>> = flow {
         delay(800)
         emit(mockHorrorContent.filter { it.category == category })
     }
 
-    suspend fun getAllContent(): Flow<List<HorrorContent>> = flow {
+    fun getAllContent(): Flow<List<HorrorContent>> = flow {
         delay(500)
         emit(mockHorrorContent)
     }
@@ -142,12 +142,12 @@ class HorrorContentRepository @Inject constructor() {
         return mockHorrorContent.find { it.id == id }
     }
 
-    suspend fun getCreatorContent(creatorName: String): Flow<List<HorrorContent>> = flow {
+    fun getCreatorContent(creatorName: String): Flow<List<HorrorContent>> = flow {
         delay(600)
         emit(mockHorrorContent.filter { it.creatorName == creatorName })
     }
 
-    suspend fun searchContent(query: String): Flow<List<HorrorContent>> = flow {
+    fun searchContent(query: String): Flow<List<HorrorContent>> = flow {
         delay(400)
         val searchResults = mockHorrorContent.filter {
             it.title.contains(query, ignoreCase = true) ||
@@ -157,22 +157,22 @@ class HorrorContentRepository @Inject constructor() {
         emit(searchResults)
     }
 
-    suspend fun getTrendingContent(): Flow<List<HorrorContent>> = flow {
+    fun getTrendingContent(): Flow<List<HorrorContent>> = flow {
         delay(700)
         emit(mockHorrorContent.sortedByDescending { it.viewCount }.take(5))
     }
 
-    suspend fun getExclusiveContent(): Flow<List<HorrorContent>> = flow {
+    fun getExclusiveContent(): Flow<List<HorrorContent>> = flow {
         delay(900)
         emit(mockHorrorContent.filter { it.isExclusive })
     }
 
-    suspend fun getPremiumContent(): Flow<List<HorrorContent>> = flow {
+    fun getPremiumContent(): Flow<List<HorrorContent>> = flow {
         delay(800)
         emit(mockHorrorContent.filter { it.isPremium })
     }
 
-    suspend fun getCreators(): Flow<List<Creator>> = flow {
+    fun getCreators(): Flow<List<Creator>> = flow {
         delay(500)
         emit(mockCreators)
     }
@@ -183,7 +183,7 @@ class HorrorContentRepository @Inject constructor() {
     }
 
     // Mock series data
-    suspend fun getHorrorSeries(): Flow<List<HorrorSeries>> = flow {
+    fun getHorrorSeries(): Flow<List<HorrorSeries>> = flow {
         delay(600)
         val series = listOf(
             HorrorSeries(
@@ -198,7 +198,7 @@ class HorrorContentRepository @Inject constructor() {
                 isCompleted = false
             ),
             HorrorSeries(
-                id = "series_2", 
+                id = "series_2",
                 title = "Horror Klasik Indonesia",
                 description = "Koleksi cerita horor klasik dari berbagai daerah",
                 thumbnailUrl = "https://example.com/series2.jpg",

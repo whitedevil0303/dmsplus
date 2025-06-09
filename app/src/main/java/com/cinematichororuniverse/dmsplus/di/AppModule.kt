@@ -1,8 +1,8 @@
 package com.cinematichororuniverse.dmsplus.di
 
 import com.cinematichororuniverse.dmsplus.data.api.BannerApiService
-import com.cinematichororuniverse.dmsplus.data.repository.HorrorContentRepository
 import com.cinematichororuniverse.dmsplus.data.repository.BannerRepository
+import com.cinematichororuniverse.dmsplus.data.repository.HorrorContentRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-    
+
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit {
@@ -23,19 +23,19 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-    
+
     @Provides
     @Singleton
     fun provideBannerApiService(retrofit: Retrofit): BannerApiService {
         return retrofit.create(BannerApiService::class.java)
     }
-    
+
     @Provides
     @Singleton
     fun provideBannerRepository(bannerApiService: BannerApiService): BannerRepository {
         return BannerRepository(bannerApiService)
     }
-    
+
     @Provides
     @Singleton
     fun provideHorrorContentRepository(): HorrorContentRepository {
