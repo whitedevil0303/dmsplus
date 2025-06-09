@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">DMS+</string>
+    <string name="app_subtitle">Indonesia\'s Horror Universe</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_channel">Channel</string>
+    <string name="nav_plus">Plus</string>
+    <string name="nav_sosokpedia">Sosokpedia</string>
+    <string name="nav_news">News</string>
+    <string name="profile">Profile</string>
+    
+    <!-- Content -->
+    <string name="featured_content">Featured Horror</string>
+    <string name="trending_content">Trending Now</string>
+    <string name="exclusive_content">Exclusive Content</string>
+    <string name="recent_content">Recently Added</string>
+    <string name="featured_creators">Featured Creators</string>
+    <string name="horror_channels">Horror Channels</string>
+    <string name="discover_creators">Discover the best horror content creators</string>
+    
+    <!-- Premium -->
+    <string name="dms_premium">DMS+ Premium</string>
+    <string name="unlock_exclusive">Unlock Exclusive Horror Content</string>
+    <string name="premium_benefits">Premium Benefits</string>
+    <string name="upgrade_premium">Upgrade to Premium - IDR 49,000/month</string>
+    
+    <!-- Sosokpedia -->
+    <string name="sosokpedia_title">Sosokpedia</string>
+    <string name="sosokpedia_subtitle">Ensiklopedia Makhluk Horor Indonesia</string>
+    <string name="search_sosok">Cari sosok horor...</string>
+    <string name="no_sosok_found">Tidak ada sosok yang ditemukan</string>
+    <string name="asal">Asal</string>
+    
+    <!-- News -->
+    <string name="horror_news">Horror News</string>
+    <string name="horror_news_subtitle">Berita Terkini Dunia Horor Indonesia</string>
+    <string name="breaking_news">BREAKING</string>
+    
+    <!-- General -->
+    <string name="loading">Loading horror content...</string>
+    <string name="error_loading">Failed to load content</string>
+    <string name="retry">Retry</string>
+    <string name="share">Share</string>
+    <string name="favorite">Favorite</string>
+    <string name="play">Play</string>
+    <string name="back">Back</string>
+    <string name="search">Search</string>
+    <string name="description">Description</string>
+    <string name="tags">Tags</string>
+    <string name="related_content">Related Content</string>
+    <string name="exclusive_badge">EXCLUSIVE</string>
+    <string name="premium_badge">PREMIUM</string>
+    <string name="verified_creator">✓ Verified Creator</string>
+    <string name="views_format">%s views</string>
+    <string name="subscribers_format">%s subscribers</string>
+    <string name="rating_format">%.1f</string>
+</resources>
