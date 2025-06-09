@@ -30,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -72,10 +72,13 @@ dependencies {
     // Compose Foundation
     implementation("androidx.compose.foundation:foundation:1.5.8")
     
+    // Compose Foundation Layout (for HorizontalPager)
+    implementation("androidx.compose.foundation:foundation-layout:1.5.8")
+    
     // Hilt Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.48")
+    implementation("com.google.dagger:hilt-android:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
     
     // ExoPlayer for HLS Video Streaming
     implementation("com.google.android.exoplayer:exoplayer:2.19.1")

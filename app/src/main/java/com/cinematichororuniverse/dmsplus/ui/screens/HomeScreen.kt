@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cinematichororuniverse.dmsplus.data.model.HorrorContent
+import com.cinematichororuniverse.dmsplus.ui.components.BannerCarousel
 import com.cinematichororuniverse.dmsplus.ui.components.HorrorContentCard
 import com.cinematichororuniverse.dmsplus.ui.components.HorrorContentListItem
 import com.cinematichororuniverse.dmsplus.ui.theme.HorrorColors
@@ -69,6 +70,7 @@ fun HomeScreen(
                     onContentClick = onContentClick,
                     onCreatorClick = onCreatorClick,
                     onRefresh = { viewModel.refreshContent() },
+                    onBannerClick = { banner -> viewModel.onBannerClick(banner) },
                     scrollState = scrollState
                 )
             }
@@ -150,6 +152,7 @@ private fun HomeContent(
     onContentClick: (HorrorContent) -> Unit,
     onCreatorClick: (String) -> Unit,
     onRefresh: () -> Unit,
+    onBannerClick: (com.cinematichororuniverse.dmsplus.data.model.Banner) -> Unit,
     scrollState: androidx.compose.foundation.ScrollState
 ) {
     Column(
@@ -158,6 +161,15 @@ private fun HomeContent(
             .verticalScroll(scrollState)
             .padding(top = 16.dp)
     ) {
+        // Banner Carousel Section
+        if (uiState.banners.isNotEmpty()) {
+            BannerCarousel(
+                banners = uiState.banners,
+                onBannerClick = onBannerClick,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        }
+        
         // Featured Content Section
         if (uiState.featuredContent.isNotEmpty()) {
             ContentSection(

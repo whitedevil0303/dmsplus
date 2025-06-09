@@ -2,9 +2,11 @@ package com.cinematichororuniverse.dmsplus.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cinematichororuniverse.dmsplus.data.model.Banner
 import com.cinematichororuniverse.dmsplus.data.model.ContentCategory
 import com.cinematichororuniverse.dmsplus.data.model.Creator
 import com.cinematichororuniverse.dmsplus.data.model.HorrorContent
+import com.cinematichororuniverse.dmsplus.data.repository.BannerRepository
 import com.cinematichororuniverse.dmsplus.data.repository.HorrorContentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -13,6 +15,7 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val isLoading: Boolean = true,
+    val banners: List<Banner> = emptyList(),
     val featuredContent: List<HorrorContent> = emptyList(),
     val trendingContent: List<HorrorContent> = emptyList(),
     val exclusiveContent: List<HorrorContent> = emptyList(),
@@ -23,7 +26,8 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: HorrorContentRepository
+    private val repository: HorrorContentRepository,
+    private val bannerRepository: BannerRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -39,6 +43,7 @@ class HomeViewModel @Inject constructor(
             
             try {
                 // Load all content in parallel
+                val bannersFlow = bannerRepository.getBanners()
                 val featuredFlow = repository.getFeaturedContent()
                 val trendingFlow = repository.getTrendingContent()
                 val exclusiveFlow = repository.getExclusiveContent()
@@ -46,14 +51,23 @@ class HomeViewModel @Inject constructor(
                 val creatorsFlow = repository.getCreators()
 
                 combine(
+                    bannersFlow,
                     featuredFlow,
                     trendingFlow,
                     exclusiveFlow,
                     recentFlow,
                     creatorsFlow
-                ) { featured, trending, exclusive, recent, creators ->
+                ) { flows ->
+                    val banners = flows[0] as List<Banner>
+                    val featured = flows[1] as List<HorrorContent>
+                    val trending = flows[2] as List<HorrorContent>
+                    val exclusive = flows[3] as List<HorrorContent>
+                    val recent = flows[4] as List<HorrorContent>
+                    val creators = flows[5] as List<Creator>
+                    
                     HomeUiState(
                         isLoading = false,
+                        banners = banners,
                         featuredContent = featured,
                         trendingContent = trending,
                         exclusiveContent = exclusive,
@@ -84,6 +98,13 @@ class HomeViewModel @Inject constructor(
 
     fun retryLoading() {
         loadHomeContent()
+    }
+    
+    fun onBannerClick(banner: Banner) {
+        // Handle banner click - could navigate to video or external URL
+        // For now, we'll just log it
+        println("Banner clicked: ${banner.title} - ${banner.targetUrl}")
+        // TODO: Implement navigation based on banner.targetUrlType and banner.targetUrl
     }
 }
 
