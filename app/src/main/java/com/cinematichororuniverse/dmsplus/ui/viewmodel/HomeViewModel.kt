@@ -103,15 +103,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun retryLoading() {
+        loadHomeContent()
+    }
+
     fun refreshContent() {
         loadHomeContent()
         loadBanners()
     }
 
-    fun retryLoading() {
-        loadHomeContent()
-    }
-    
     fun retryBanners() {
         loadBanners()
     }

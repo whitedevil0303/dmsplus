@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,11 +37,16 @@ fun BannerCarousel(
     
     val pagerState = rememberPagerState(pageCount = { banners.size })
     
-    // Auto scroll effect
-    LaunchedEffect(pagerState.currentPage) {
-        delay(autoScrollDuration)
-        val nextPage = (pagerState.currentPage + 1) % banners.size
-        pagerState.animateScrollToPage(nextPage)
+    // Auto scroll effect - use Unit as key to prevent restart on page changes
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(autoScrollDuration)
+            // Only auto-scroll if user is not currently interacting
+            if (!pagerState.isScrollInProgress) {
+                val nextPage = (pagerState.currentPage + 1) % banners.size
+                pagerState.animateScrollToPage(nextPage)
+            }
+        }
     }
     
     Column(
@@ -53,7 +59,8 @@ fun BannerCarousel(
         ) {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
             ) { page ->
                 val banner = banners[page]
                 BannerCard(
