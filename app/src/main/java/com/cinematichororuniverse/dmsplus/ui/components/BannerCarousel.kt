@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -35,16 +36,21 @@ fun BannerCarousel(
 ) {
     if (banners.isEmpty()) return
     
-    val pagerState = rememberPagerState(pageCount = { banners.size })
+    // Use a large but reasonable number for infinite effect
+    val loopCount = 1000
+    val actualStartIndex = (loopCount / 2) * banners.size
     
-    // Auto scroll effect - use Unit as key to prevent restart on page changes
+    val pagerState = rememberPagerState(
+        initialPage = actualStartIndex,
+        pageCount = { banners.size * loopCount }
+    )
+    
+    // Auto scroll effect
     LaunchedEffect(Unit) {
         while (true) {
             delay(autoScrollDuration)
-            // Only auto-scroll if user is not currently interacting
             if (!pagerState.isScrollInProgress) {
-                val nextPage = (pagerState.currentPage + 1) % banners.size
-                pagerState.animateScrollToPage(nextPage)
+                pagerState.animateScrollToPage(pagerState.currentPage + 1)
             }
         }
     }
@@ -62,7 +68,8 @@ fun BannerCarousel(
                 modifier = Modifier.fillMaxSize(),
                 flingBehavior = PagerDefaults.flingBehavior(state = pagerState)
             ) { page ->
-                val banner = banners[page]
+                val actualIndex = page % banners.size
+                val banner = banners[actualIndex]
                 BannerCard(
                     banner = banner,
                     onClick = { onBannerClick(banner) },
@@ -78,7 +85,8 @@ fun BannerCarousel(
                 horizontalArrangement = Arrangement.Center
             ) {
                 repeat(banners.size) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) {
+                    val actualCurrentIndex = pagerState.currentPage % banners.size
+                    val color = if (actualCurrentIndex == iteration) {
                         HorrorColors.BloodRed
                     } else {
                         HorrorColors.GhostWhite.copy(alpha = 0.5f)
